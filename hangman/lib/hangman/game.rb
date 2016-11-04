@@ -4,20 +4,19 @@ module Hangman
   
   # Represents the hangman game
   class Game
-    attr_reader :secret_word, :dictionary
+    attr_reader :secret_word, :dictionary, :board
 
     def initialize(name)
       @player = Player.new(name)
       @dictionary = File.readlines("5desk.txt").each(&:strip!)
-      @guesses_left = 15
+      @guesses_left = 8
       @win = false
     end
 
     # Starts a new game of hangman
     def play
       instructions
-      @secret_word = make_secret_word
-      @board = Board.new(@secret_word)
+      create_game
 
       until @guesses_left == 0 || @win || win?
         puts "\n" << "=" * 70 << "\n\n"
@@ -25,9 +24,14 @@ module Hangman
         @guesses_left -= 1
       end
 
-      puts "\n" << "=" * 70 << "\n\n"
-      @board.display_guess
-      puts "\nThe secret word was: #{@secret_word}"
+      @win = win? # Check for a win at the last guess
+      display_ending_screen
+    end
+
+    # Creates a secret word and a board
+    def create_game
+      @secret_word = make_secret_word
+      @board = Board.new(@secret_word)
     end
 
     # Displays the instructions for the game
@@ -68,25 +72,47 @@ module Hangman
       puts print_guess_correct_or_not
     end
 
+    # Prints the ending screen of the game
+    def display_ending_screen
+      puts "\n" << "=" * 70 << "\n\n"
+      @board.display_guess
+      puts "\nThe secret word was: #{@secret_word}\n\n"
+
+      if @win
+        puts "YOU WIN!"
+        puts "Congratulations! You guessed the word."
+      else
+        puts "YOU LOSE."
+        puts "Sorry, you couldn't guess the word."
+      end
+    end
+
     # Sets @win to true if the player word guess is correct and
     # returns a string indicating if the guess was correct or not
     def check_word_guess(guess)
       if guess.downcase == @secret_word
           @win = true
+          @board.finish_guess
           "\nYour word guess was correct!" 
       else
         "\nYour word guess was incorrect." 
       end
     end
 
+    # Returns true if string contains only letters
+    def contains_only_letters?(input)
+      /[^A-Za-z]/ !~ input
+    end
+
     # Returns true if the player input is valid (word guess only)
     def valid_word_input?(guess)
-      guess.length == @secret_word.length
+      guess.length == @secret_word.length && contains_only_letters?(guess)
     end
 
     # Returns true if the player input is valid (not counting word guesses)
     def valid_letter_input?(guess)
-      guess.length == 1 && !@board.guessed_letters.include?(guess)
+      guess.length == 1 && contains_only_letters?(guess) &&
+      !@board.guessed_letters.include?(guess)
     end
 
     # Returns a corresponding string if the guess was correct or not

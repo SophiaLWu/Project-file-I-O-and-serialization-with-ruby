@@ -46,6 +46,10 @@ module Hangman
       Array.new(@secret_word.length, "_")
     end
 
+    def finish_guess
+      @guess = @secret_word.split("")
+    end
+
     def word_as_array
       @secret_word.split("")
     end
