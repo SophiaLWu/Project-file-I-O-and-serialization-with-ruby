@@ -6,10 +6,9 @@ module Hangman
   class Game
     attr_reader :secret_word, :dictionary, :board
 
-    def initialize(name)
-      @player = Player.new(name)
+    def initialize
       @dictionary = File.readlines("5desk.txt").each(&:strip!)
-      @guesses_left = 8
+      @guesses_left = 10
       @win = false
     end
 
@@ -43,7 +42,7 @@ module Hangman
       puts "in the secret word (multiple copies as well)."
       puts "-At any time, you can try and guess the full secret word if you "
       puts "think you know it."
-      puts "-You have 8 guesses to try and figure out the secret word."
+      puts "-You have 10 guesses to try and figure out the secret word."
       puts "\nGood luck!"
     end
 
@@ -138,6 +137,19 @@ module Hangman
       end
       word.downcase
     end
+
+    def save(filename)
+      Dir.mkdir("saves") unless Dir.exist?("saves")
+      File.open("saves/" + filename, "w") { |file| file.puts to_json }
+    end
+
+    # def to_json
+    #   JSON.dump ({
+    #     :dictionary = @dictionary,
+    #     :guesses_left = @guesses_left,
+    #     :win = @win
+    #   })
+    # end
 
   end
 

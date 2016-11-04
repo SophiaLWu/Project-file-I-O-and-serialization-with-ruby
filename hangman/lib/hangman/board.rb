@@ -46,10 +46,13 @@ module Hangman
       Array.new(@secret_word.length, "_")
     end
 
+    # Completes the guess by setting @guess equal to the correct array of
+    # letters from the secret word
     def finish_guess
       @guess = @secret_word.split("")
     end
 
+    # Returns a word as an array of letters from that word
     def word_as_array
       @secret_word.split("")
     end
