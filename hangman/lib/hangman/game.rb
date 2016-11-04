@@ -43,7 +43,7 @@ module Hangman
       puts "in the secret word (multiple copies as well)."
       puts "-At any time, you can try and guess the full secret word if you "
       puts "think you know it."
-      puts "-You have 6 guesses to try and figure out the secret word."
+      puts "-You have 8 guesses to try and figure out the secret word."
       puts "\nGood luck!"
     end
 

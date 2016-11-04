@@ -64,6 +64,64 @@ module Hangman
     end
 
     context "#valid_letter_input?" do
+      it "returns true with a valid letter input" do
+        g = Game.new("Ashley")
+        g.create_game
+        expect(g.valid_letter_input?("a")).to eq(true)
+      end
+
+      it "returns false with a symbol input" do
+        g = Game.new("Ashley")
+        g.create_game
+        expect(g.valid_letter_input?("*")).to eq(false)
+      end
+
+      it "returns false with an empty input" do
+        g = Game.new("Ashley")
+        g.create_game
+        expect(g.valid_letter_input?("")).to eq(false)
+      end
+
+      it "returns false with a letter input that was already used" do
+        g = Game.new("Ashley")
+        g.create_game
+        g.board.add_letter_guess("a")
+        expect(g.valid_letter_input?("a")).to eq(false)
+      end
+    end
+
+    context "#valid_word_input?" do
+      it "returns true with a valid word input" do
+        g = Game.new("Ashley")
+        g.create_game
+        length = g.secret_word.length
+        new_string = Array.new(length, "a").join
+        expect(g.valid_word_input?(new_string)).to eq(true)
+      end
+
+      it "returns false with a word input of valid length, but invalid chars" do
+        g = Game.new("Ashley")
+        g.create_game
+        length = g.secret_word.length
+        new_string = Array.new(length, "*").join
+        expect(g.valid_word_input?(new_string)).to eq(false)
+      end
+
+      it "returns false with a word input of invalid longer length" do
+        g = Game.new("Ashley")
+        g.create_game
+        length = g.secret_word.length
+        new_string = Array.new(length + 2, "b").join
+        expect(g.valid_word_input?(new_string)).to eq(false)
+      end
+
+      it "returns false with a word input of invalid shorter length" do
+        g = Game.new("Ashley")
+        g.create_game
+        length = g.secret_word.length
+        new_string = Array.new(length - 1, "c").join
+        expect(g.valid_word_input?(new_string)).to eq(false)
+      end
     end
 
   end
