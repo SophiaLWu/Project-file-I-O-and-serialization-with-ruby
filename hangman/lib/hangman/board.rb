@@ -2,8 +2,8 @@ module Hangman
   
   # Represents the hangman "board", i.e. the word, number of guesses left
   class Board
-    attr_reader :guessed_letters, :guess, :secret_word_letters,
-                :correct_current_guess
+    attr_accessor :secret_word, :secret_word_letters, :guess,
+                  :guessed_letters, :correct_current_guess
 
     def initialize(secret_word)
       @secret_word = secret_word

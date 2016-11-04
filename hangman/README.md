@@ -22,7 +22,11 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Execute the following command to play the game:
+
+    $ ruby play_game.rb
+
+There are sample save files inside of the save folders if you would like to test loading a save file. Alternatively, you can save your own game while playing and load that at another time.
 
 ## Development
 

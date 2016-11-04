@@ -15,7 +15,12 @@ module Hangman
     # Starts a new game of hangman
     def play
       instructions
-      create_game
+
+      if play_saved_game?
+        load_game
+      else
+        create_game
+      end
 
       until @guesses_left == 0 || @win || win?
         puts "\n" << "=" * 70 << "\n\n"
@@ -50,6 +55,10 @@ module Hangman
     def take_turn
       @board.display_board
       puts "\nGuesses left: #{@guesses_left}"
+      if player_save_game?
+          save_game
+          exit
+      end
       puts "\nWhat is your guess?"
       print ">> "
       guess = gets.chomp
@@ -138,18 +147,91 @@ module Hangman
       word.downcase
     end
 
-    def save(filename)
-      Dir.mkdir("saves") unless Dir.exist?("saves")
-      File.open("saves/" + filename, "w") { |file| file.puts to_json }
+    private
+
+    # Returns true if the player wants to load a save
+    def play_saved_game?
+      puts "\nWould you like to load a save? (Y/N)"
+      print ">> "
+      if gets.chomp.downcase == "y"
+        true
+      else
+        false
+      end
     end
 
-    # def to_json
-    #   JSON.dump ({
-    #     :dictionary = @dictionary,
-    #     :guesses_left = @guesses_left,
-    #     :win = @win
-    #   })
-    # end
+    # Loads a player given filename
+    def load_game
+      puts "\nWhat save would you like to load?"
+      print ">> "
+      load(gets.chomp)
+    end
+
+    # Returns true if the player wants to save the game
+    def player_save_game?
+      puts "\nWould you like to save your game? (Y/N)"
+      print ">> "
+      input = gets.chomp
+      if input.downcase == "y"
+        true
+      else
+        false
+      end
+    end
+
+    # Saves the game
+    def save_game
+      puts "\nWhat would you like to call your saved game?"
+      print ">> "
+      save(gets.chomp)
+    end
+
+    # Given a filename, saves the game as the filename
+    def save(filename)
+      Dir.mkdir("saves") unless Dir.exist?("saves")
+      File.open("saves/" + filename, "w") { |f| f.puts to_json }
+    end
+
+    # Given a filename, loads that game file
+    def load(filename)
+      File.open("saves/" + filename, "r") { |f| from_json_game(f) }
+      @board = Board.new(@secret_word)
+      File.open("saves/" + filename, "r") { |f| from_json_board(f) }
+    end
+
+    # Generates a stringified version of the object 
+    def to_json
+      JSON.dump ({
+        :dictionary => @dictionary,
+        :guesses_left => @guesses_left,
+        :win => @win,
+        :secret_word => @secret_word,
+        :board_secret_word => @board.secret_word,
+        :board_secret_word_letters => @board.secret_word_letters,
+        :board_guess => @board.guess,
+        :board_guessed_letters => @board.guessed_letters,
+        :board_correct_current_guess => @board.correct_current_guess
+      })
+    end
+
+    # Loads all instance variables of the Game class from the json string
+    def from_json_game(string)
+      data = JSON.load string
+      @dictionary = data["dictionary"]
+      @guesses_left = data["guesses_left"]
+      @win = data["win"]
+      @secret_word = data["secret_word"]
+    end
+
+    # Loads all instance variables of the Board class from the json string
+    def from_json_board(string)
+      data = JSON.load string
+      @board.secret_word = data["board_secret_word"]
+      @board.secret_word_letters = data["board_secret_word_letters"]
+      @board.guess = data["board_guess"]
+      @board.guessed_letters = data["board_guessed_letters"]
+      @board.correct_current_guess = data["board_correct_current_guess"]
+    end
 
   end
 
