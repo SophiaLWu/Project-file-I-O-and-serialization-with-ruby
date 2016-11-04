@@ -12,10 +12,14 @@ module Hangman
       @win = false
     end
 
+    # Starts up the hangman game
+    def start_game
+      instructions
+      play
+    end
+
     # Starts a new game of hangman
     def play
-      instructions
-
       if play_saved_game?
         load_game
       else
@@ -23,13 +27,14 @@ module Hangman
       end
 
       until @guesses_left == 0 || @win || win?
-        puts "\n" << "=" * 70 << "\n\n"
+        puts "\n" << "=" * 65 << "\n\n"
         take_turn
         @guesses_left -= 1
       end
 
       @win = win? # Check for a win at the last guess
       display_ending_screen
+      restart_game if play_again?
     end
 
     # Creates a secret word and a board
@@ -64,8 +69,7 @@ module Hangman
       guess = gets.chomp
 
       until valid_letter_input?(guess) || valid_word_input?(guess)
-        puts "Invalid input! Please input an unused letter or full "\
-             "guess for the word."
+        puts "Invalid input! Input an unused letter or full word guess."
         print ">> "
         guess = gets.chomp
       end
@@ -78,21 +82,6 @@ module Hangman
       @board.add_letter_guess(guess)
 
       puts print_guess_correct_or_not
-    end
-
-    # Prints the ending screen of the game
-    def display_ending_screen
-      puts "\n" << "=" * 70 << "\n\n"
-      @board.display_guess
-      puts "\nThe secret word was: #{@secret_word}\n\n"
-
-      if @win
-        puts "YOU WIN!"
-        puts "Congratulations! You guessed the word."
-      else
-        puts "YOU LOSE."
-        puts "Sorry, you couldn't guess the word."
-      end
     end
 
     # Sets @win to true if the player word guess is correct and
@@ -132,11 +121,6 @@ module Hangman
       end
     end
 
-    # Returns true if player has guessed all the letters in the secret word
-    def win?
-      @board.guess.none? { |letter| letter == "_" }
-    end
-
     # Returns a randomly selected word between 5 and 12  
     # characters long from the dictionary
     def make_secret_word
@@ -147,7 +131,48 @@ module Hangman
       word.downcase
     end
 
+    # Returns true if player has guessed all the letters in the secret word
+    def win?
+      @board.guess.none? { |letter| letter == "_" }
+    end
+
     private
+
+    # Prints the ending screen of the game
+    def display_ending_screen
+      puts "\n" << "=" * 65 << "\n\n"
+      @board.display_guess
+      puts "\nThe secret word was: #{@secret_word}\n\n"
+
+      if @win
+        puts "YOU WIN!"
+        puts "Congratulations! You guessed the word."
+      else
+        puts "YOU LOSE."
+        puts "Sorry, you couldn't guess the word."
+      end
+    end
+
+    # Returns true if the player wants to play again
+    def play_again?
+      puts "\nWould you like to play again? (Y/N)"
+      print ">> "
+      response = gets.chomp.downcase
+      if response == "y"
+        true
+      else
+        false
+      end
+    end
+
+    # Restarts the game
+    def restart_game
+      @guesses_left = 10
+      @win = false
+      puts "\nSTARTING A NEW GAME..."
+      puts "\n" << "=" * 65
+      play
+    end
 
     # Returns true if the player wants to load a save
     def play_saved_game?
@@ -164,7 +189,9 @@ module Hangman
     def load_game
       puts "\nWhat save would you like to load?"
       print ">> "
-      load(gets.chomp)
+      filename = gets.chomp
+      load(filename)
+      puts "\n#{filename} loaded."
     end
 
     # Returns true if the player wants to save the game
@@ -183,7 +210,9 @@ module Hangman
     def save_game
       puts "\nWhat would you like to call your saved game?"
       print ">> "
-      save(gets.chomp)
+      filename = gets.chomp
+      save(filename)
+      puts "\nGame saved as #{filename}."
     end
 
     # Given a filename, saves the game as the filename
